@@ -94,10 +94,30 @@ def next_weekday_date(weekday: str, date_from: str = date.today().strftime("%Y-%
     return the_date.strftime("%Y-%m-%d")
 
 
-def get_dates_weekly(week_span: int
+def get_weekly_dates(date_to: str
                      , weekday: str = 'NONE'
                      , date_from: str = date.today().strftime("%Y-%m-%d")
                      ) -> list[str]:
+    """return a list of dates as iso format string
+
+        ,weekday(str) day of week to filter to, from first instance post date_from
+    """
+    date_list = []
+    iso_start_date = date.fromisoformat(next_weekday_date(weekday, date_from))
+    iso_end_date = date.fromisoformat(next_weekday_date(weekday, date_to))
+    interval = iso_end_date - iso_start_date
+    days_span = interval.days
+    for day in range(0, days_span):
+        the_date = iso_start_date + timedelta(days=day)
+        if the_date.isoweekday() == iso_start_date.isoweekday():
+            date_list.append(the_date.strftime("%Y-%m-%d"))
+    return date_list
+
+
+def get_weekly_dates_no_weeks(week_span: int
+                              , weekday: str = 'NONE'
+                              , date_from: str = date.today().strftime("%Y-%m-%d")
+                              ) -> list[str]:
     """return a list of dates as iso format string
 
         ,weekday(str) day of week to filter to, from first instance post date_from
@@ -112,6 +132,35 @@ def get_dates_weekly(week_span: int
     return date_list
 
 
-print(next_weekday_date('SATURDAY'))
-print(is_weekday('SATURDAY'))
-print(get_dates_weekly(12, 'FRIDAY'))
+def convert_str_to_timedelta(time_string):
+    """get a timedelta object from HH:MI:SS"""
+
+    time_values = time_string.split(':')
+    hrs = int(time_values[0])
+    mins = int(time_values[1])
+    secs = int(time_values[2])
+
+    return timedelta(hours=hrs, minutes=mins, seconds=secs)
+
+
+def get_time_diff_intervals(time_from:str,time_to:str,interval_steps:int = 1)->list[str]:
+    """return list of intervening times in between two values entered"""
+
+    timedelta_from = convert_str_to_timedelta(time_from)
+    timedelta_to = convert_str_to_timedelta(time_to)
+    return_list = [time_from]
+    if timedelta_from > timedelta_to:
+        time_step = (timedelta_from - timedelta_to)/(interval_steps + 1)
+        for idx in range(interval_steps):
+            time_interval = timedelta_from-time_step
+            return_list.append(str(time_interval))
+    elif timedelta_from < timedelta_to:
+        time_step = (timedelta_to - timedelta_from)/(interval_steps + 1)
+        for idx in range(interval_steps):
+            time_interval = timedelta_from+time_step
+            return_list.append(str(time_interval))
+    else:
+        for idx in range(interval_steps):
+            return_list.append(time_from)
+    return_list.append(time_to)
+    return return_list

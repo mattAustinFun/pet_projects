@@ -12,4 +12,3 @@ def  diff_intervals_list(intervals:int, start_from:int,end_with:int) ->list[int]
     return diff_list
 
 
-print(diff_intervals_list(4,10,40))
